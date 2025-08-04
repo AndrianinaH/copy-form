@@ -47,22 +47,79 @@ function fillTextareas(data) {
     });
 }
 
-// Fonction pour gérer les descriptions multilingues
+// Fonction pour gérer les descriptions multilingues et CKEditor
 function fillMultiLanguageDescriptions(data) {
     // Pour le formulaire de création, on utilise le champ "description" principal
     // On prend la première description non vide disponible
     const descriptionFields = ['text_desc[1]', 'text_desc[3]', 'text_desc[4]', 'text_desc[5]', 'text_desc[6]', 'text_desc[14]'];
     
-    const descriptionElement = document.querySelector('textarea[name="description"]');
-    if (descriptionElement && !descriptionElement.value) { // Ne pas écraser si déjà rempli
-        for (let fieldName of descriptionFields) {
-            if (data[fieldName] && data[fieldName].trim()) {
-                descriptionElement.value = data[fieldName];
-                console.log(`✅ Rempli description principale avec ${fieldName}`);
-                break;
-            }
+    let descriptionToUse = '';
+    let sourceField = '';
+    
+    // Trouver la première description non vide
+    for (let fieldName of descriptionFields) {
+        if (data[fieldName] && data[fieldName].trim()) {
+            descriptionToUse = data[fieldName];
+            sourceField = fieldName;
+            break;
         }
     }
+    
+    if (!descriptionToUse) {
+        console.log('⚠️ Aucune description trouvée dans les données');
+        return;
+    }
+    
+    // Méthode 1: Essayer avec CKEditor si disponible
+    if (typeof CKEDITOR !== 'undefined') {
+        const editorInstance = CKEDITOR.instances['description'];
+        if (editorInstance) {
+            editorInstance.setData(descriptionToUse);
+            console.log(`✅ Rempli CKEditor description avec ${sourceField}`);
+            return;
+        }
+    }
+    
+    // Méthode 2: Essayer avec le textarea standard
+    const descriptionElement = document.querySelector('textarea[name="description"]');
+    if (descriptionElement) {
+        if (!descriptionElement.value || descriptionElement.value.trim() === '') {
+            descriptionElement.value = descriptionToUse;
+            
+            // Déclencher les événements pour les éditeurs qui se basent sur le textarea
+            descriptionElement.dispatchEvent(new Event('input', { bubbles: true }));
+            descriptionElement.dispatchEvent(new Event('change', { bubbles: true }));
+            
+            console.log(`✅ Rempli textarea description avec ${sourceField}`);
+        } else {
+            console.log('⚠️ Description déjà remplie, passage ignoré');
+        }
+    } else {
+        console.log('⚠️ Champ description non trouvé');
+    }
+    
+    // Méthode 3: Tentative avec d'autres éditeurs WYSIWYG populaires
+    setTimeout(() => {
+        // TinyMCE
+        if (typeof tinymce !== 'undefined') {
+            const editor = tinymce.get('description');
+            if (editor && editor.getContent().trim() === '') {
+                editor.setContent(descriptionToUse);
+                console.log(`✅ Rempli TinyMCE description avec ${sourceField}`);
+                return;
+            }
+        }
+        
+        // Quill
+        if (typeof Quill !== 'undefined') {
+            const quillContainer = document.querySelector('#description-editor .ql-editor');
+            if (quillContainer && quillContainer.innerHTML.trim() === '<p><br></p>') {
+                quillContainer.innerHTML = descriptionToUse;
+                console.log(`✅ Rempli Quill description avec ${sourceField}`);
+                return;
+            }
+        }
+    }, 100); // Petit délai pour laisser les éditeurs s'initialiser
 }
 
 // Fonction pour remplir les selects (simple)
@@ -73,7 +130,7 @@ function fillSelectInputs(data) {
         // Si c'est un objet avec value et selectedText
         if (fieldValue && typeof fieldValue === 'object' && fieldValue.value !== undefined) {
             const element = document.querySelector(`select[name="${fieldName}"]`);
-            if (element && element.type === 'select-one') {
+            if (element && (element.type === 'select-one' || element.multiple === false)) {
                 // Essayer de sélectionner par value
                 let optionFound = false;
                 for (let i = 0; i < element.options.length; i++) {
@@ -81,16 +138,23 @@ function fillSelectInputs(data) {
                         element.selectedIndex = i;
                         optionFound = true;
                         console.log(`✅ Sélectionné select[${fieldName}] = "${fieldValue.selectedText}" (${fieldValue.value})`);
+                        
+                        // Déclencher l'événement change pour les selects avec des dépendances
+                        element.dispatchEvent(new Event('change', { bubbles: true }));
                         break;
                     }
                 }
                 
-                // Si pas trouvé par value, essayer par text
+                // Si pas trouvé par value, essayer par text (comparaison plus flexible)
                 if (!optionFound && fieldValue.selectedText) {
                     for (let i = 0; i < element.options.length; i++) {
-                        if (element.options[i].text.trim() === fieldValue.selectedText.trim()) {
+                        const optionText = element.options[i].text.trim().toLowerCase();
+                        const searchText = fieldValue.selectedText.trim().toLowerCase();
+                        if (optionText === searchText || optionText.includes(searchText)) {
                             element.selectedIndex = i;
+                            optionFound = true;
                             console.log(`✅ Sélectionné select[${fieldName}] par texte = "${fieldValue.selectedText}"`);
+                            element.dispatchEvent(new Event('change', { bubbles: true }));
                             break;
                         }
                     }
@@ -98,6 +162,8 @@ function fillSelectInputs(data) {
                 
                 if (!optionFound) {
                     console.log(`⚠️ Option non trouvée pour select[${fieldName}]: ${fieldValue.value} / ${fieldValue.selectedText}`);
+                    // Debug: afficher les options disponibles
+                    console.log(`   Options disponibles:`, Array.from(element.options).map(opt => `${opt.value}: ${opt.text}`));
                 }
             } else if (!element) {
                 console.log(`⚠️ Select[${fieldName}] non trouvé dans le formulaire de création`);
