@@ -5,9 +5,9 @@ function extractFormData() {
   const formData = {};
 
   // Récupérer le formulaire principal (horse_form)
-  const form = document.forms["horse_form"];
+  const form = document.forms['horse_form'];
   if (!form) {
-    console.error("Formulaire horse_form non trouv�");
+    console.error('Formulaire horse_form non trouv�');
     return null;
   }
 
@@ -22,28 +22,28 @@ function extractFormData() {
     if (!name) continue; // Ignorer les éléments sans nom
 
     switch (type) {
-      case "text":
-      case "hidden":
-      case "email":
-      case "tel":
-      case "url":
-      case "number":
-      case "password":
+      case 'text':
+      case 'hidden':
+      case 'email':
+      case 'tel':
+      case 'url':
+      case 'number':
+      case 'password':
         formData[name] = element.value;
         break;
 
-      case "textarea":
+      case 'textarea':
         formData[name] = element.value;
         break;
 
-      case "select-one":
+      case 'select-one':
         formData[name] = {
           value: element.value,
-          selectedText: element.options[element.selectedIndex]?.text || "",
+          selectedText: element.options[element.selectedIndex]?.text || '',
         };
         break;
 
-      case "select-multiple":
+      case 'select-multiple':
         const selectedOptions = [];
         for (let j = 0; j < element.options.length; j++) {
           if (element.options[j].selected) {
@@ -56,7 +56,7 @@ function extractFormData() {
         formData[name] = selectedOptions;
         break;
 
-      case "checkbox":
+      case 'checkbox':
         if (!formData[name]) {
           formData[name] = [];
         }
@@ -68,7 +68,7 @@ function extractFormData() {
         }
         break;
 
-      case "radio":
+      case 'radio':
         if (element.checked) {
           formData[name] = element.value;
         }
@@ -91,7 +91,7 @@ function getFormDataAsJSON() {
   const data = extractFormData();
   if (data) {
     const jsonString = JSON.stringify(data, null, 2);
-    console.log("Données du formulaire :");
+    console.log('Données du formulaire :');
     console.log(jsonString);
 
     // Copier automatiquement dans le presse-papiers si possible
@@ -99,10 +99,10 @@ function getFormDataAsJSON() {
       navigator.clipboard
         .writeText(jsonString)
         .then(() => {
-          console.log(" JSON copié dans le presse-papiers !");
+          console.log(' JSON copié dans le presse-papiers !');
         })
         .catch((err) => {
-          console.log("L Erreur lors de la copie :", err);
+          console.log('L Erreur lors de la copie :', err);
         });
     }
 
@@ -112,5 +112,5 @@ function getFormDataAsJSON() {
 }
 
 // Exécuter automatiquement
-console.log("🚀 Extraction des données du formulaire...");
+console.log('🚀 Extraction des données du formulaire...');
 getFormDataAsJSON();
