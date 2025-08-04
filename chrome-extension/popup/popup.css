@@ -360,17 +360,24 @@ body {
 }
 
 .recent-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
   padding: var(--spacing-md);
   background: var(--bg-primary);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
-  cursor: pointer;
   transition: all var(--transition-fast);
 }
 
 .recent-item:hover {
   border-color: var(--primary-blue);
   transform: translateX(4px);
+}
+
+.recent-item-content {
+  flex: 1;
+  cursor: pointer;
 }
 
 .recent-item-title {
@@ -383,6 +390,37 @@ body {
 .recent-item-meta {
   font-size: 0.75rem;
   color: var(--text-tertiary);
+}
+
+.delete-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.recent-item:hover .delete-btn {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.delete-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--primary-red);
+  transform: scale(1.1);
+}
+
+.delete-btn:active {
+  transform: scale(0.95);
 }
 
 /* Footer */

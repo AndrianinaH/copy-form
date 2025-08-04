@@ -254,16 +254,32 @@ class FormCopyPopup {
 
         this.recentList.innerHTML = forms.map(form => `
             <div class="recent-item" data-form-id="${form.id}">
-                <div class="recent-item-title">${this.truncateText(form.title, 40)}</div>
-                <div class="recent-item-meta">
-                    ${form.fieldCount} champs • ${this.formatRelativeTime(form.timestamp)}
+                <div class="recent-item-content">
+                    <div class="recent-item-title">${this.truncateText(form.title, 40)}</div>
+                    <div class="recent-item-meta">
+                        ${form.fieldCount} champs • ${this.formatRelativeTime(form.timestamp)}
+                    </div>
                 </div>
+                <button class="delete-btn" data-form-id="${form.id}" title="Supprimer ce formulaire">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <line x1="10" y1="11" x2="10" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <line x1="14" y1="11" x2="14" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
             </div>
         `).join('');
 
         // Ajouter les event listeners
         this.recentList.querySelectorAll('.recent-item').forEach(item => {
-            item.addEventListener('click', () => this.loadStoredForm(item.dataset.formId));
+            const content = item.querySelector('.recent-item-content');
+            const deleteBtn = item.querySelector('.delete-btn');
+            
+            content.addEventListener('click', () => this.loadStoredForm(item.dataset.formId));
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.deleteStoredForm(item.dataset.formId);
+            });
         });
     }
 
@@ -286,19 +302,76 @@ class FormCopyPopup {
         }
     }
 
+    async deleteStoredForm(formId) {
+        try {
+            // Supprimer du storage
+            await chrome.storage.local.remove([`form_${formId}`]);
+            
+            // Supprimer l'élément de l'interface
+            const itemToRemove = this.recentList.querySelector(`[data-form-id="${formId}"]`);
+            if (itemToRemove) {
+                itemToRemove.remove();
+            }
+            
+            // Vérifier s'il faut afficher l'état vide
+            const remainingItems = this.recentList.querySelectorAll('.recent-item');
+            if (remainingItems.length === 0) {
+                this.recentList.innerHTML = `
+                    <div class="empty-state">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="empty-icon">
+                            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <p class="empty-text">Aucun formulaire copié récemment</p>
+                    </div>
+                `;
+            }
+            
+            // Vérifier si c'était le formulaire actuel
+            const currentResult = await chrome.storage.local.get(['currentFormData']);
+            if (currentResult.currentFormData) {
+                const currentFormResult = await chrome.storage.local.get([`form_${formId}`]);
+                if (!currentFormResult[`form_${formId}`]) {
+                    // Le formulaire supprimé était peut-être le formulaire actuel
+                    // On garde le formulaire actuel en mémoire même si son historique est supprimé
+                }
+            }
+            
+            this.showToast('success', 'Formulaire supprimé', 'Le formulaire a été retiré de l\'historique');
+            
+        } catch (error) {
+            this.showToast('error', 'Erreur', 'Impossible de supprimer ce formulaire');
+        }
+    }
+
     addToRecentForms(formRecord) {
         // Cette méthode sera appelée après la sauvegarde réussie
         const recentItem = document.createElement('div');
         recentItem.className = 'recent-item';
         recentItem.dataset.formId = formRecord.id;
         recentItem.innerHTML = `
-            <div class="recent-item-title">${this.truncateText(formRecord.title, 40)}</div>
-            <div class="recent-item-meta">
-                ${formRecord.fieldCount} champs • À l'instant
+            <div class="recent-item-content">
+                <div class="recent-item-title">${this.truncateText(formRecord.title, 40)}</div>
+                <div class="recent-item-meta">
+                    ${formRecord.fieldCount} champs • À l'instant
+                </div>
             </div>
+            <button class="delete-btn" data-form-id="${formRecord.id}" title="Supprimer ce formulaire">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <line x1="10" y1="11" x2="10" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <line x1="14" y1="11" x2="14" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
         `;
         
-        recentItem.addEventListener('click', () => this.loadStoredForm(formRecord.id));
+        const content = recentItem.querySelector('.recent-item-content');
+        const deleteBtn = recentItem.querySelector('.delete-btn');
+        
+        content.addEventListener('click', () => this.loadStoredForm(formRecord.id));
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.deleteStoredForm(formRecord.id);
+        });
 
         // Supprimer l'état vide et ajouter le nouvel élément
         const emptyState = this.recentList.querySelector('.empty-state');
@@ -356,6 +429,42 @@ class FormCopyPopup {
         chrome.tabs.create({ url: chrome.runtime.getURL('help.html') });
     }
 
+    // Fonction utilitaire pour exporter le JSON (accessible depuis la console)
+    async exportCurrentFormData() {
+        try {
+            const result = await chrome.storage.local.get(['currentFormData']);
+            if (result.currentFormData) {
+                const jsonString = JSON.stringify(result.currentFormData, null, 2);
+                console.log("=== DONNÉES DU FORMULAIRE COPIÉ ===");
+                console.log(jsonString);
+                console.log("=== FIN DES DONNÉES ===");
+                console.log("💡 Sélectionnez le JSON ci-dessus et copiez-le avec Ctrl+C");
+                
+                return result.currentFormData;
+            } else {
+                console.log("❌ Aucune donnée de formulaire trouvée");
+                return null;
+            }
+        } catch (error) {
+            console.error("Erreur lors de l'export:", error);
+            return null;
+        }
+    }
+
+    // Fonction pour voir toutes les données stockées
+    async debugStorage() {
+        try {
+            const result = await chrome.storage.local.get(null);
+            console.log("=== TOUTES LES DONNÉES STOCKÉES ===");
+            console.log(result);
+            console.log("=== FIN DU DEBUG STORAGE ===");
+            return result;
+        } catch (error) {
+            console.error("Erreur lors du debug:", error);
+            return null;
+        }
+    }
+
     handleBackgroundMessage(message, sender, sendResponse) {
         switch (message.action) {
             case 'updateProgress':
@@ -393,7 +502,22 @@ class FormCopyPopup {
     }
 }
 
+// Variable globale pour accéder au popup depuis la console
+let formCopyPopup;
+
 // Initialiser le popup quand le DOM est chargé
 document.addEventListener('DOMContentLoaded', () => {
-    new FormCopyPopup();
+    formCopyPopup = new FormCopyPopup();
+    
+    // Exposer les fonctions utilitaires globalement pour la console
+    window.exportFormData = () => formCopyPopup.exportCurrentFormData();
+    window.debugStorage = () => formCopyPopup.debugStorage();
+    
+    console.log("🔧 FONCTIONS DE DEBUG DISPONIBLES:");
+    console.log("   exportFormData() - Exporte le JSON du formulaire copié");
+    console.log("   debugStorage() - Affiche toutes les données stockées");
+    console.log("");
+    console.log("🚀 MÉTHODE ALTERNATIVE SIMPLE:");
+    console.log('   chrome.storage.local.get(["currentFormData"], (r) => console.log(JSON.stringify(r.currentFormData, null, 2)))');
+    console.log("");
 });

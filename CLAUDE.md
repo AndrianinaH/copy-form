@@ -4,48 +4,63 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Purpose
 
-This is a JavaScript utility project for copying form data between horse listing forms on Equirodi.com. The project consists of scripts to extract form data from edit forms and populate creation forms with that data.
+This project provides tools for copying form data between web pages, particularly designed for horse listing forms on Equirodi.com. It consists of both a Chrome extension and standalone console scripts.
 
 ## Architecture
 
-### Core Components
+### Chrome Extension (Primary)
+The main implementation is a Chrome extension with:
 
-- **copy-form.js**: Script for extracting form data from the edit form (`horse_form`) in JSON format
-- **past-form.js**: Script for populating creation forms with previously extracted data (currently empty/incomplete)
-- **editform.html**: Large HTML file containing the complete edit form structure for a horse listing
-- **createform.html**: Creation form HTML (currently minimal/empty)
-- **result.json**: Sample extracted form data showing the expected JSON structure
+- **popup/**: User interface for the extension
+  - `popup.html`: Main popup UI (360x580px)
+  - `popup.js`: Popup logic and event handling
+  - `popup.css`: Modern styling with animations
+- **content-scripts/**: Scripts injected into web pages
+  - `extract-form.js`: Extract form data from current page
+  - `fill-form.js`: Fill forms with stored data
+- **background/**: Service worker for background tasks
+  - `background.js`: Handles extension lifecycle and messaging
+- **manifest.json**: Extension configuration and permissions
 
-### Data Structure
-
-The extracted form data follows this pattern:
-- Text inputs: `"field_name": "value"`
-- Select dropdowns: `"field_name": {"value": "option_value", "selectedText": "Display Text"}`
-- Checkboxes: `"field_name[]": [{"value": "checkbox_value", "checked": true}]`
-- Multi-language descriptions: `"text_desc[1]"` through `"text_desc[14]"` for different languages
-
-### Form Structure
-
-The main form (`horse_form`) contains extensive horse listing data including:
-- Basic info: title, location, price, horse name
-- Horse details: breed, sex, color, year of birth, height
-- Experience levels, disciplines, lineage information
-- Multi-language descriptions (French, English, Spanish, German, Italian, Dutch)
+### Console Scripts (Legacy)
+Located in `console-scripts/`:
+- **copy-form.js**: Extract form data via browser console
+- **past-form.js**: Populate forms via browser console
+- **editform.html/createform.html**: Sample HTML forms for testing
+- **result.json**: Sample extracted data structure
 
 ## Development Workflow
 
-### Extracting Form Data
-1. Load the edit form page in browser
-2. Open browser console
-3. Copy and paste the content of `copy-form.js`
-4. The script will automatically extract all form data and copy JSON to clipboard
+### Chrome Extension Development
+1. Make changes to extension files
+2. Go to `chrome://extensions/`
+3. Click "Reload" on the extension to apply changes
+4. Test functionality on web pages with forms
 
-### Creating Pre-fill Script
-The `past-form.js` script should be developed to:
-1. Take JSON data (like from `result.json`)
-2. Find corresponding form fields on creation page
-3. Populate fields with appropriate values based on field type
+### Extension Installation
+Follow the detailed steps in `chrome-extension/GUIDE_INSTALLATION.md`. Key requirements:
+- Create PNG icons (16x16, 48x48, 128x128) in `icons/` folder
+- Load unpacked extension in Chrome developer mode
+- Extension works on all URLs with appropriate permissions
 
-## Browser Console Usage
+### Data Structure
+Form data is stored as JSON with these patterns:
+- Text inputs: `"field_name": "value"`
+- Select dropdowns: `"field_name": {"value": "option_value", "selectedText": "Display Text"}`
+- Checkboxes: `"field_name[]": [{"value": "checkbox_value", "checked": true}]`
+- Multi-language fields: `"text_desc[1]"` through `"text_desc[14]"`
 
-These scripts are designed to run in browser console on the actual Equirodi.com pages, not as standalone Node.js applications. The scripts interact directly with DOM elements using `document.forms['horse_form']`.
+### Extension Features
+- Copy/paste forms between any web pages
+- Recent forms history with storage
+- Keyboard shortcuts: Ctrl+Shift+C (copy), Ctrl+Shift+V (paste)
+- Modern UI with progress indicators and animations
+- Cross-tab functionality via Chrome storage API
+
+## Key Technical Details
+
+- Extension uses Manifest V3 with service worker
+- Content scripts run at `document_idle` on all URLs
+- Uses Chrome storage API for persistence
+- Popup class-based architecture with event handling
+- Message passing between popup, content scripts, and background
