@@ -122,7 +122,33 @@ function fillMultiLanguageDescriptions(data) {
     }, 100); // Petit délai pour laisser les éditeurs s'initialiser
 }
 
-// Fonction pour remplir les selects (simple)
+// Fonction pour remplir les champs Selectize
+function fillSelectizeInputs(data) {
+    Object.keys(data).forEach(fieldName => {
+        const fieldValue = data[fieldName];
+        
+        // Si c'est un objet avec value et selectedText
+        if (fieldValue && typeof fieldValue === 'object' && fieldValue.value !== undefined) {
+            const element = document.querySelector(`select[name="${fieldName}"]`);
+            if (element) {
+                // Vérifier si c'est un champ Selectize
+                const selectizeInstance = element.selectize;
+                if (selectizeInstance) {
+                    // C'est un champ Selectize
+                    selectizeInstance.setValue(fieldValue.value);
+                    console.log(`✅ Sélectionné Selectize[${fieldName}] = "${fieldValue.selectedText}" (${fieldValue.value})`);
+                } else if (typeof jQuery !== 'undefined' && jQuery(element).data('selectize')) {
+                    // Alternative avec jQuery
+                    const selectizeObj = jQuery(element).data('selectize');
+                    selectizeObj.setValue(fieldValue.value);
+                    console.log(`✅ Sélectionné Selectize jQuery[${fieldName}] = "${fieldValue.selectedText}" (${fieldValue.value})`);
+                }
+            }
+        }
+    });
+}
+
+// Fonction pour remplir les selects (simple) - version mise à jour
 function fillSelectInputs(data) {
     Object.keys(data).forEach(fieldName => {
         const fieldValue = data[fieldName];
@@ -131,6 +157,13 @@ function fillSelectInputs(data) {
         if (fieldValue && typeof fieldValue === 'object' && fieldValue.value !== undefined) {
             const element = document.querySelector(`select[name="${fieldName}"]`);
             if (element && (element.type === 'select-one' || element.multiple === false)) {
+                
+                // Vérifier d'abord si c'est un champ Selectize et le traiter séparément
+                if (element.selectize || (typeof jQuery !== 'undefined' && jQuery(element).data('selectize'))) {
+                    // Sera traité par fillSelectizeInputs
+                    return;
+                }
+                
                 // Essayer de sélectionner par value
                 let optionFound = false;
                 for (let i = 0; i < element.options.length; i++) {
@@ -317,6 +350,7 @@ function fillFormWithData(jsonData) {
         // Remplir les différents types d'éléments
         fillTextInputs(mappedData);
         fillTextareas(mappedData);
+        fillSelectizeInputs(mappedData);  // Traiter les champs Selectize en premier
         fillSelectInputs(mappedData);
         fillCheckboxes(mappedData);
         fillRadioButtons(mappedData);
