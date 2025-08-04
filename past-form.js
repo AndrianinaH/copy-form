@@ -309,9 +309,9 @@ function mapFieldNames(data) {
         'id_horses',    // ID spécifique au cheval existant
         'city',         // Pas présent dans le formulaire de création
         'postcode',     // Pas présent dans le formulaire de création
-        'county',       // Pas présent dans le formulaire de création
         'price',        // Peut être géré différemment
         'price_discount' // Peut être géré différemment
+        // Note: county n'est plus ignoré car il existe mais est chargé dynamiquement
     ];
     
     // Supprimer les champs qui n'existent pas dans le formulaire de création
@@ -323,6 +323,66 @@ function mapFieldNames(data) {
     });
     
     return mappedData;
+}
+
+// Fonction pour gérer les champs chargés dynamiquement (comme county)
+function fillDynamicFields(data) {
+    // Gérer le champ county qui dépend du country
+    if (data.county && data.country) {
+        // Attendre que le champ county soit chargé après la sélection du pays
+        const maxAttempts = 20; // 10 secondes maximum
+        let attempts = 0;
+        
+        const tryFillCounty = () => {
+            attempts++;
+            const countyElement = document.querySelector('select[name="county"]');
+            
+            if (countyElement && countyElement.options.length > 1) {
+                // Le champ county est maintenant chargé
+                const fieldValue = data.county;
+                let optionFound = false;
+                
+                for (let i = 0; i < countyElement.options.length; i++) {
+                    if (countyElement.options[i].value === fieldValue.value) {
+                        countyElement.selectedIndex = i;
+                        optionFound = true;
+                        console.log(`✅ Sélectionné county[${fieldValue.selectedText}] = ${fieldValue.value}`);
+                        countyElement.dispatchEvent(new Event('change', { bubbles: true }));
+                        break;
+                    }
+                }
+                
+                if (!optionFound && fieldValue.selectedText) {
+                    // Essayer par texte
+                    for (let i = 0; i < countyElement.options.length; i++) {
+                        const optionText = countyElement.options[i].text.trim().toLowerCase();
+                        const searchText = fieldValue.selectedText.trim().toLowerCase();
+                        if (optionText.includes(searchText) || searchText.includes(optionText)) {
+                            countyElement.selectedIndex = i;
+                            optionFound = true;
+                            console.log(`✅ Sélectionné county par texte[${fieldValue.selectedText}] = ${countyElement.options[i].text}`);
+                            countyElement.dispatchEvent(new Event('change', { bubbles: true }));
+                            break;
+                        }
+                    }
+                }
+                
+                if (!optionFound) {
+                    console.log(`⚠️ Département non trouvé: ${fieldValue.value} / ${fieldValue.selectedText}`);
+                    console.log(`   Options disponibles:`, Array.from(countyElement.options).map(opt => `${opt.value}: ${opt.text}`));
+                }
+            } else if (attempts < maxAttempts) {
+                // Réessayer dans 500ms
+                setTimeout(tryFillCounty, 500);
+                console.log(`⏳ Attente du chargement du champ county... (tentative ${attempts}/${maxAttempts})`);
+            } else {
+                console.log('⚠️ Timeout: le champ county n\'a pas pu être chargé dans les temps');
+            }
+        };
+        
+        // Commencer à essayer après un petit délai
+        setTimeout(tryFillCounty, 500);
+    }
 }
 
 // Fonction principale pour remplir le formulaire
@@ -358,6 +418,9 @@ function fillFormWithData(jsonData) {
         
         // Gérer les champs spéciaux pour les descriptions multilingues
         fillMultiLanguageDescriptions(jsonData);
+        
+        // Gérer les champs chargés dynamiquement (comme county)
+        fillDynamicFields(jsonData);
         
         console.log('✅ Remplissage du formulaire de création terminé !');
         return true;
