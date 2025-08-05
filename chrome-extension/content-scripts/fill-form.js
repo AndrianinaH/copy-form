@@ -161,22 +161,68 @@ function fillSelectizeInputs(data) {
       fieldValue.value !== undefined
     ) {
       const element = document.querySelector(`select[name="${fieldName}"]`);
-      if (element) {
-        const selectizeInstance = element.selectize;
+      
+      if (element && element.classList.contains('selectized')) {
+        // Pour les éléments Selectize, manipulation directe
+        let parentControl = element.closest('.selectize-control');
+        
+        // Alternative : chercher le contrôle par l'ID ou le nom
+        if (!parentControl) {
+          const allControls = document.querySelectorAll('.selectize-control');
+          allControls.forEach((control) => {
+            const hiddenSelect = control.querySelector('select');
+            if (hiddenSelect && hiddenSelect.name === fieldName) {
+              parentControl = control;
+            }
+          });
+        }
+        
+        // Dernier recours : chercher un contrôle Selectize à côté
+        if (!parentControl && element.nextElementSibling) {
+          if (element.nextElementSibling.classList.contains('selectize-control')) {
+            parentControl = element.nextElementSibling;
+          }
+        }
+        
+        if (parentControl) {
+          const selectizeInput = parentControl.querySelector('.selectize-input');
+          
+          if (selectizeInput) {
+            selectizeInput.click();
+            
+            setTimeout(() => {
+              let dropdown = document.querySelector('.selectize-dropdown');
+              if (!dropdown) {
+                dropdown = parentControl.querySelector('.selectize-dropdown');
+              }
+              
+              if (dropdown) {
+                // Utiliser [data-value] qui est le bon sélecteur pour Selectize
+                const options = dropdown.querySelectorAll('[data-value]');
+                
+                for (let option of options) {
+                  const optionValue = option.getAttribute('data-value');
+                  const optionText = option.textContent;
+                  
+                  if (optionValue === fieldValue.value || 
+                      optionText.includes(fieldValue.selectedText)) {
+                    option.click();
+                    console.log(`✅ Sélectionné Selectize[${fieldName}] = "${optionText}"`);
+                    return;
+                  }
+                }
+              }
+            }, 200);
+          }
+        }
+      } else if (element) {
+        // Pour les éléments normaux, essayer l'instance Selectize
+        const selectizeInstance = element.selectize || 
+          (typeof jQuery !== 'undefined' && jQuery(element).data('selectize'));
+        
         if (selectizeInstance) {
           selectizeInstance.setValue(fieldValue.value);
-          console.log(
-            `✅ Sélectionné Selectize[${fieldName}] = "${fieldValue.selectedText}"`
-          );
-        } else if (
-          typeof jQuery !== 'undefined' &&
-          jQuery(element).data('selectize')
-        ) {
-          const selectizeObj = jQuery(element).data('selectize');
-          selectizeObj.setValue(fieldValue.value);
-          console.log(
-            `✅ Sélectionné Selectize jQuery[${fieldName}] = "${fieldValue.selectedText}"`
-          );
+          console.log(`✅ Sélectionné Selectize[${fieldName}] = "${fieldValue.selectedText}"`);
         }
       }
     }
