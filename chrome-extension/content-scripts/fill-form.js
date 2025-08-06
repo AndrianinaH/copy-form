@@ -65,6 +65,7 @@ function fillFormWithData(jsonData) {
     fillMultiLanguageDescriptions(jsonData);
     fillDynamicFields(jsonData);
     fillCustomSelects(jsonData);
+    fillEhorsesDescriptions(jsonData);
 
     console.log('Remplissage du formulaire terminé !');
     return true;
@@ -609,4 +610,69 @@ function formatDisciplineName(fieldName) {
   };
   
   return disciplineNames[fieldName] || fieldName;
+}
+
+function fillEhorsesDescriptions(data) {
+  // Vérifier si on est sur ehorses.fr
+  if (!window.location.hostname.includes('ehorses')) {
+    return;
+  }
+
+  console.log('🔍 Remplissage des descriptions ehorses.fr...');
+
+  // Correspondance entre les index JSON et les langues du DOM
+  const languageMapping = {
+    0: { lang: 'fr', index: 6 },  // Horse.Descriptions[0] = Français (index 6 dans le DOM)
+    1: { lang: 'de', index: 0 },  // Horse.Descriptions[1] = Allemand (index 0 dans le DOM)
+    2: { lang: 'it', index: 1 },  // Horse.Descriptions[2] = Italien (index 1 dans le DOM)
+    3: { lang: 'pl', index: 2 },  // Horse.Descriptions[3] = Polonais (index 2 dans le DOM)
+    4: { lang: 'en', index: 3 },  // Horse.Descriptions[4] = Anglais (index 3 dans le DOM)
+    5: { lang: 'nl', index: 4 },  // Horse.Descriptions[5] = Néerlandais (index 4 dans le DOM)
+    6: { lang: 'es', index: 5 }   // Horse.Descriptions[6] = Espagnol (index 5 dans le DOM)
+  };
+
+  // Parcourir toutes les descriptions possibles
+  for (let i = 0; i <= 6; i++) {
+    const descriptionKey = `Horse.Descriptions[${i}].Description`;
+    const isActiveKey = `Horse.Descriptions[${i}].IsActive`;
+    const languageKey = `Horse.Descriptions[${i}].Language`;
+    
+    if (data[descriptionKey] && data[isActiveKey] === 'True') {
+      const mapping = languageMapping[i];
+      if (mapping) {
+        const textarea = document.querySelector(`#desc_${mapping.lang}`);
+        if (textarea && data[descriptionKey].trim()) {
+          textarea.value = data[descriptionKey];
+          console.log(`✅ Rempli description ${mapping.lang}: ${data[descriptionKey].substring(0, 50)}...`);
+          
+          // Si c'est la langue active, s'assurer qu'elle est sélectionnée
+          const editorDiv = textarea.closest(`[data-language="${mapping.lang}"]`);
+          if (editorDiv) {
+            // Retirer la classe selected de tous les autres
+            document.querySelectorAll('.editors > div').forEach(div => {
+              div.classList.remove('selected');
+            });
+            // Ajouter selected à celui-ci
+            editorDiv.classList.add('selected');
+            
+            // Mettre à jour le sélecteur de langue
+            const languageSelector = document.querySelector('#selectedLanguage');
+            if (languageSelector) {
+              const languageNames = {
+                'fr': 'Français',
+                'de': 'Allemand', 
+                'it': 'Italien',
+                'pl': 'Polonais',
+                'en': 'Anglais',
+                'nl': 'Néerlandais',
+                'es': 'Espagnol'
+              };
+              languageSelector.innerHTML = `<div class="flag ${mapping.lang}" data-lang="${mapping.lang}">${languageNames[mapping.lang]}</div>`;
+              console.log(`✅ Langue sélectionnée: ${languageNames[mapping.lang]}`);
+            }
+          }
+        }
+      }
+    }
+  }
 }
