@@ -64,6 +64,7 @@ function fillFormWithData(jsonData) {
     // Gérer les champs spéciaux
     fillMultiLanguageDescriptions(jsonData);
     fillDynamicFields(jsonData);
+    fillCustomSelects(jsonData);
 
     console.log('Remplissage du formulaire terminé !');
     return true;
@@ -370,4 +371,204 @@ function mapFieldNames(data) {
   });
 
   return mappedData;
+}
+
+function fillCustomSelects(data) {
+  // Gérer les selects personnalisés avec ColorBox, linkButtonFakeSelect, etc.
+  
+  // 1. Gérer les aptitudes ehorses.fr avec ColorBox
+  fillColorBoxDisciplines(data);
+  
+  // 2. Autres types de selects custom peuvent être ajoutés ici
+  // fillOtherCustomSelects(data);
+}
+
+function fillColorBoxDisciplines(data) {
+  // Vérifier si on est sur ehorses.fr
+  if (!window.location.hostname.includes('ehorses')) {
+    return;
+  }
+
+  // Toutes les disciplines de la popup ColorBox (d'après le HTML fourni)
+  const disciplineFields = [
+    'chevaux-baroques',
+    'chevaux-de-chasse-a-courre',
+    'hunter-under-saddle',
+    'cce',
+    'attelage',
+    'cowhorse',
+    'cuttinghorses',
+    'doma-vaquera',
+    'chevaux-de-dressage',
+    'endurance',
+    'english-pleasure',
+    'equitation-portugesa',
+    'etalon',
+    'galopeur',
+    'hunter',
+    'chevaux-de-loisir',
+    'polo',
+    'reining',
+    'chevaux-elevage',
+    'chevaux-de-saut-dobstacles',
+    'chevaux-de-spectacle',
+    'trailhorses',
+    'trotteur',
+    'ranch-riding-horses',
+    'chevaux-de-vitesse',
+    'voltige',
+    'western-horses',
+    'western-allround',
+    'chasseur-de-louest',
+    'pleasurehorses',
+    'working-equitation-horses'
+  ];
+  
+  // Les aptitudes/caractéristiques ne sont PAS dans les popups de disciplines
+  const aptitudeFields = [
+    'aku',
+    'halfterfuehrig',
+    'istAfg',
+    'istAngeritten',
+    'istGelaendesicher',
+    'vomZuechter'
+  ];
+
+  let mainDiscipline = null;
+  let otherDisciplines = [];
+
+  // Identifier les disciplines principales et secondaires
+  console.log('🔍 Début analyse des aptitudes ColorBox...');
+  
+  let allFields = [...disciplineFields, ...aptitudeFields];
+  
+  allFields.forEach(fieldName => {
+    if (data[fieldName] && Array.isArray(data[fieldName])) {
+      console.log(`🔍 Analyse du champ: ${fieldName}`, data[fieldName]);
+      data[fieldName].forEach(aptitude => {
+        if (aptitude.checked) {
+          if (aptitude.value === 'main') {
+            mainDiscipline = fieldName;
+            console.log(`✅ Discipline principale détectée: ${fieldName}`);
+          } else if (disciplineFields.includes(fieldName)) {
+            // Seules les vraies disciplines vont dans otherDisciplines
+            otherDisciplines.push(fieldName);
+            console.log(`✅ Autre discipline détectée: ${fieldName} (value: ${aptitude.value})`);
+          } else {
+            // Les aptitudes sont juste enregistrées comme inputs hidden
+            console.log(`✅ Aptitude détectée: ${fieldName} (value: ${aptitude.value})`);
+          }
+        }
+      });
+    }
+  });
+  
+  console.log(`🎯 Résultat analyse: Principal="${mainDiscipline}", Autres=[${otherDisciplines.join(', ')}]`);
+
+  // Nettoyer les résumés existants avant de les remplir
+  clearDisciplineSummaries();
+
+  // Gérer la discipline principale
+  if (mainDiscipline) {
+    setTimeout(() => {
+      const mainButton = document.querySelector('#DMain.linkButtonFakeSelect');
+      if (mainButton) {
+        // Mettre à jour le texte du bouton
+        const span = mainButton.querySelector('span');
+        if (span) {
+          span.textContent = formatDisciplineName(mainDiscipline);
+        }
+        
+        // Créer un input hidden pour la soumission
+        createHiddenInput(mainDiscipline, 'main');
+        
+        // Mettre à jour le résumé si présent
+        updateDisciplineSummary('#summary_main', mainDiscipline);
+      }
+    }, 100);
+  }
+
+  // Gérer les autres disciplines
+  if (otherDisciplines.length > 0) {
+    setTimeout(() => {
+      const otherButton = document.querySelector('#DOthers.linkButtonFakeSelect');
+      if (otherButton) {
+        const span = otherButton.querySelector('span');
+        if (span) {
+          span.textContent = `${otherDisciplines.length} autre(s) discipline(s) sélectionnée(s)`;
+        }
+      }
+      
+      // Créer des inputs hidden pour chaque autre discipline (affichage visuel)
+      otherDisciplines.forEach(discipline => {
+        createHiddenInput(discipline, 'ON');
+        updateDisciplineSummary('#summary_misc', discipline);
+      });
+      
+      // Créer des inputs hidden pour les aptitudes (pas d'affichage visuel)
+      allFields.forEach(fieldName => {
+        if (data[fieldName] && Array.isArray(data[fieldName])) {
+          data[fieldName].forEach(aptitude => {
+            if (aptitude.checked && aptitude.value === 'ON' && !disciplineFields.includes(fieldName)) {
+              createHiddenInput(fieldName, 'ON');
+            }
+          });
+        }
+      });
+    }, 200);
+  }
+}
+
+function createHiddenInput(fieldName, value) {
+  let hiddenInput = document.querySelector(`input[name="${fieldName}"][value="${value}"]`);
+  if (!hiddenInput) {
+    hiddenInput = document.createElement('input');
+    hiddenInput.type = 'hidden';
+    hiddenInput.name = fieldName;
+    hiddenInput.value = value;
+    document.body.appendChild(hiddenInput);
+  }
+}
+
+function clearDisciplineSummaries() {
+  // Nettoyer les résumés existants
+  const summaryMain = document.querySelector('#summary_main');
+  const summaryMisc = document.querySelector('#summary_misc');
+  
+  if (summaryMain) {
+    summaryMain.innerHTML = '';
+  }
+  if (summaryMisc) {
+    summaryMisc.innerHTML = '';
+  }
+}
+
+function updateDisciplineSummary(summarySelector, discipline) {
+  const summaryDiv = document.querySelector(summarySelector);
+  if (summaryDiv) {
+    const disciplineName = formatDisciplineName(discipline);
+    const summaryItem = document.createElement('div');
+    summaryItem.className = 'disc_summary';
+    summaryItem.setAttribute('data-name', discipline);
+    summaryItem.id = discipline;
+    summaryItem.innerHTML = `${disciplineName}<span class="iconfont close">H</span>`;
+    summaryDiv.appendChild(summaryItem);
+  }
+}
+
+function formatDisciplineName(fieldName) {
+  const disciplineNames = {
+    'chevaux-de-dressage': 'Dressage',
+    'chevaux-de-loisir': 'Loisir',
+    'chevaux-elevage': 'Reproduction',
+    'trailhorses': 'Trail',
+    'aku': 'AKU',
+    'halfterfuehrig': 'Halfterfuehrig',
+    'istAfg': 'AFG',
+    'istAngeritten': 'Débourré',
+    'istGelaendesicher': 'Sûr en extérieur',
+    'vomZuechter': 'De l\'éleveur'
+  };
+  
+  return disciplineNames[fieldName] || fieldName;
 }
