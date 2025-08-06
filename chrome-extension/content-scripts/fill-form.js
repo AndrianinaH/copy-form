@@ -388,6 +388,12 @@ function fillColorBoxDisciplines(data) {
   if (!window.location.hostname.includes('ehorses')) {
     return;
   }
+  
+  // Éviter les doublons - marquer que le traitement est en cours
+  if (window.ehorsesProcessing) {
+    return;
+  }
+  window.ehorsesProcessing = true;
 
   // Toutes les disciplines de la popup ColorBox (d'après le HTML fourni)
   const disciplineFields = [
@@ -517,6 +523,11 @@ function fillColorBoxDisciplines(data) {
       });
     }, 200);
   }
+  
+  // Marquer la fin du traitement après un délai pour éviter les conflits
+  setTimeout(() => {
+    window.ehorsesProcessing = false;
+  }, 1000);
 }
 
 function createHiddenInput(fieldName, value) {
@@ -558,10 +569,37 @@ function updateDisciplineSummary(summarySelector, discipline) {
 
 function formatDisciplineName(fieldName) {
   const disciplineNames = {
+    'chevaux-baroques': 'Baroque',
+    'chevaux-de-chasse-a-courre': 'Chasse à Courre',
+    'hunter-under-saddle': 'Chasseur sous la selle',
+    'cce': 'Concours complet',
+    'attelage': 'Conduite',
+    'cowhorse': 'Cowhorses',
+    'cuttinghorses': 'Cutting',
+    'doma-vaquera': 'Doma Vaquera',
     'chevaux-de-dressage': 'Dressage',
+    'endurance': 'Endurance',
+    'english-pleasure': 'English Pleasure',
+    'equitation-portugesa': 'Equitation Portugesa',
+    'etalon': 'Étalon d\'élevage',
+    'galopeur': 'Galopeur',
+    'hunter': 'Hunter',
     'chevaux-de-loisir': 'Loisir',
+    'polo': 'Polo',
+    'reining': 'Reining',
     'chevaux-elevage': 'Reproduction',
+    'chevaux-de-saut-dobstacles': 'Saut',
+    'chevaux-de-spectacle': 'Spectacle équestre',
     'trailhorses': 'Trail',
+    'trotteur': 'Trotteur',
+    'ranch-riding-horses': 'Versatility Ranch Horse',
+    'chevaux-de-vitesse': 'Vitesse',
+    'voltige': 'Voltige',
+    'western-horses': 'Western',
+    'western-allround': 'Western allround',
+    'chasseur-de-louest': 'Western Hunter',
+    'pleasurehorses': 'Western Pleasure',
+    'working-equitation-horses': 'Working Equitation',
     'aku': 'AKU',
     'halfterfuehrig': 'Halfterfuehrig',
     'istAfg': 'AFG',
