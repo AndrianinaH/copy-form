@@ -1,0 +1,177 @@
+{
+  "EditMode": "True",
+  "Extend": "False",
+  "Horse.AskForPrice": [
+    {
+      "checked": true,
+      "value": "true"
+    }
+  ],
+  "Horse.Association.Id": {
+    "selectedText": "Associacion Nacional De Criadores de Caballos de Pura Raza Espanola (ANCCE)",
+    "value": "6"
+  },
+  "Horse.Color.Id": {
+    "selectedText": "Bai",
+    "value": "11"
+  },
+  "Horse.Descriptions[0].Description": "SENI MORENA, une jeune jument Pure Race Espagnole (PRE) née en 2022. Elle est issue de l’union de Jecomias CEN et Seni Honesta, une lignée de qualité qui lui confère élégance et prestance.\n\n Pourquoi choisir SENI MORENA ?\n\nIssu de l’élevage Alegria, réputé pour sa rigueur, ses valeurs, et ses chevaux équilibrés.\n\n\nDoté d’une présence exceptionnelle, avec une robe élégante et des allures naturelles, il attire tous les regards.\n\n\nElle possède un tempérament volontaire et curieux, un vrai partenaire d’avenir pour le sport, la reproduction ou les présentations.\n\n\n Évoluant dans un cadre respectueux et stimulant, SENI MORENA bénéficie d’un développement optimal, aussi bien physique que mental.\n Prêt à rencontrer son humain idéal, elle attend désormais de rejoindre une maison qui saura l’aimer, le valoriser et l’accompagner.\n Contactez-nous pour plus d’informations, photos, vidéos ou visite.\n\n\n \n\nALEGRIA – Trouvez le cheval de vos rêves  et créez une relation unique, fondée sur la confiance et la complicité .\n\nChez Alegria, nous savons que l’achat d’un cheval est bien plus qu’une simple transaction. Il s’agit de trouver un partenaire de vie avec lequel vous allez construire une relation solide et épanouissante.  Nous vous offrons un accompagnement expert à chaque étape, pour que vous puissiez faire un choix éclairé et démarrer cette aventure en toute sérénité.\n\nPourquoi choisir Alegria ?\n\nUn accompagnement personnalisé pour vous guider dans votre choix.\nNous vous aidons à trouver le cheval qui correspond à votre personnalité, vos attentes et vos compétences, pour que la relation qui se tisse avec lui soit fluide et naturelle. ✨ Notre équipe d’experts vous conseille, vous guide et vous accompagne dans votre démarche afin que vous fassiez un choix éclairé, sans précipitation.\n\nDes chevaux élevés dans un environnement propice à leur bien-être.\nNos chevaux sont élevés dans des conditions exceptionnelles, où ils bénéficient d’une éducation douce et respectueuse ️, fondée sur notre méthode exclusive \"Relation de Complicité\". Chaque cheval est préparé pour être un partenaire fiable, réactif et équilibré, prêt à bâtir une relation de confiance avec vous.\n\nDes soins de qualité pour garantir une santé optimale.\nLe bien-être de nos chevaux est primordial.  Ils sont suivis régulièrement par des experts de la santé animale : vétérinaires, ostéopathes, maréchaux-ferrants et dentistes. Ce suivi médical garantit que votre cheval sera en pleine forme, prêt à débuter cette nouvelle relation avec vous dans les meilleures conditions.\n\nUn suivi transparent grâce aux fiches de progression.\nChaque cheval bénéficie d’une fiche de progression détaillée  qui vous permet de connaître son niveau exact, ses points forts et son caractère. Cette transparence vous offre toutes les clés pour choisir le cheval qui correspondra à vos attentes et à la relation que vous souhaitez construire avec lui.\n\nUn accompagnement continu pour réussir cette relation.\nChez Alegria, nous croyons qu’une relation durable ne s’improvise pas. C’est pourquoi nous restons à vos côtés après l’achat , avec un suivi personnalisé pour vous aider à construire une véritable complicité avec votre cheval. Grâce à nos formations en présentiel et en distanciel, vous apprendrez à mieux comprendre votre cheval et à renforcer les bases de votre relation.\n\nDes témoignages de clients satisfaits.\nNous avons accompagné des centaines de cavaliers dans leur projet.  100% de nos clients sont satisfaits de l’accompagnement et de la relation qu’ils ont pu tisser avec leur cheval. Leur témoignage est la meilleure preuve de la qualité de notre travail et de la réussite des relations que nous favorisons.\n\nTrouvez le cheval qui correspond à vos attentes.\nDécouvrez dès maintenant notre sélection de chevaux exceptionnels  et commencez à imaginer la relation que vous allez créer avec lui. Consultez les fiches de progression et laissez-vous guider par notre équipe d’experts pour trouver le cheval qui répond à vos attentes.\n\n Découvrez notre sélection de chevaux sur www.alegriacomplicite.com et commencez à construire la relation dont vous rêvez.\n\nAlegria – Trouvez le cheval qui vous correspond  et créez une relation fondée sur la confiance et la complicité",
+  "Horse.Descriptions[0].IsActive": "True",
+  "Horse.Descriptions[0].IsTranslated": "False",
+  "Horse.Descriptions[0].Language": "fr",
+  "Horse.Descriptions[0].TabText": "Français",
+  "Horse.Descriptions[1].IsActive": "False",
+  "Horse.Descriptions[1].IsTranslated": "False",
+  "Horse.Descriptions[1].Language": "de",
+  "Horse.Descriptions[1].TabText": "Allemand",
+  "Horse.Descriptions[2].IsActive": "False",
+  "Horse.Descriptions[2].IsTranslated": "False",
+  "Horse.Descriptions[2].Language": "it",
+  "Horse.Descriptions[2].TabText": "Italien",
+  "Horse.Descriptions[3].IsActive": "False",
+  "Horse.Descriptions[3].IsTranslated": "False",
+  "Horse.Descriptions[3].Language": "pl",
+  "Horse.Descriptions[3].TabText": "Polonais",
+  "Horse.Descriptions[4].IsActive": "False",
+  "Horse.Descriptions[4].IsTranslated": "False",
+  "Horse.Descriptions[4].Language": "en",
+  "Horse.Descriptions[4].TabText": "Anglais",
+  "Horse.Descriptions[5].IsActive": "False",
+  "Horse.Descriptions[5].IsTranslated": "False",
+  "Horse.Descriptions[5].Language": "nl",
+  "Horse.Descriptions[5].TabText": "Néerlandais",
+  "Horse.Descriptions[6].IsActive": "False",
+  "Horse.Descriptions[6].IsTranslated": "False",
+  "Horse.Descriptions[6].Language": "es",
+  "Horse.Descriptions[6].TabText": "Espagnol",
+  "Horse.Height": "165",
+  "Horse.HideHorsename": "False",
+  "Horse.Horsename": "SENI MORENA",
+  "Horse.Id": "4551482",
+  "Horse.Lifenumber": "724015220372753",
+  "Horse.Location.City": "Caumont",
+  "Horse.Location.Country.Id": {
+    "selectedText": "France",
+    "value": "5"
+  },
+  "Horse.Location.Zip": "09160",
+  "Horse.OtherContactPhoneCountryCode": {
+    "selectedText": "+33",
+    "value": "+33"
+  },
+  "Horse.Package": "5",
+  "Horse.Price": "10000",
+  "Horse.Race.Id": {
+    "selectedText": "PRE",
+    "value": "379"
+  },
+  "Horse.ReferenceId": "0",
+  "Horse.Sex.Id": {
+    "selectedText": "Jument",
+    "value": "2"
+  },
+  "Horse.ShowOnAssociationHomepage": "0",
+  "Horse.Status": "Active",
+  "Horse.Subtitle": "MORENA, une jeune jument Pure Race Espagnole (PRE) née en 2022",
+  "Horse.YearOfBirth": {
+    "selectedText": "2022",
+    "value": "2022"
+  },
+  "IsMainDiscipline": "False",
+  "Packet": "4",
+  "Ref": "/myehorses/adverts",
+  "TodayNew": "False",
+  "User.Address.City": "Caumont",
+  "User.Address.Country.Id": {
+    "selectedText": "France",
+    "value": "5"
+  },
+  "User.Address.Firstname": "Thierry",
+  "User.Address.HouseNumber": "8",
+  "User.Address.Name": "Laffite",
+  "User.Address.Phone.InternationalAreaCode": {
+    "selectedText": "+33",
+    "value": "+33"
+  },
+  "User.Address.Phone.PhoneNumber": "661937694",
+  "User.Address.Street": "Chemin de Cagomil",
+  "User.Address.Zip": "09160",
+  "User.Id": "714552",
+  "Version": "B",
+  "__RequestVerificationToken": "wugPewe3VQQfaGH461K1E_0T4B4ZiZPCAyZDR6UzWe3RW54gQD9UTy75k00OhlzWMgY70BQ97ym3GBMClbz_B5xbK4U1",
+  "aku": [
+    {
+      "checked": true,
+      "value": "ON"
+    }
+  ],
+  "chevaux-de-dressage": [
+    {
+      "checked": true,
+      "value": "ON"
+    }
+  ],
+  "chevaux-de-loisir": [
+    {
+      "checked": true,
+      "value": "ON"
+    }
+  ],
+  "chevaux-elevage": [
+    {
+      "checked": true,
+      "value": "main"
+    }
+  ],
+  "formStep": "5",
+  "halfterfuehrig": [
+    {
+      "checked": true,
+      "value": "ON"
+    }
+  ],
+  "istAfg": [
+    {
+      "checked": true,
+      "value": "ON"
+    }
+  ],
+  "istAngeritten": [
+    {
+      "checked": true,
+      "value": "ON"
+    }
+  ],
+  "istGelaendesicher": [
+    {
+      "checked": true,
+      "value": "ON"
+    }
+  ],
+  "stammbaum_m": "SENI HONESTA",
+  "stammbaum_mm": "SENI-RAPIDA I",
+  "stammbaum_mmm": "CARLA",
+  "stammbaum_mmv": "GARROCHO-SENI",
+  "stammbaum_mv": "SENI PLATERO",
+  "stammbaum_mvm": "SENI-PLATERA",
+  "stammbaum_mvv": "GUAPO-SENI II",
+  "stammbaum_v": "JECOMIAS CEN",
+  "stammbaum_vm": "FECONIA-CEN",
+  "stammbaum_vmm": "ARANESA II",
+  "stammbaum_vmv": "UBIO",
+  "stammbaum_vv": "MARCO ANTONIO",
+  "stammbaum_vvm": "HOGUERA",
+  "stammbaum_vvv": "DESAFIO III",
+  "trailhorses": [
+    {
+      "checked": true,
+      "value": "ON"
+    }
+  ],
+  "vomZuechter": [
+    {
+      "checked": true,
+      "value": "ON"
+    }
+  ]
+}
