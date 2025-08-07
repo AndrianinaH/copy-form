@@ -120,6 +120,39 @@ function extractFormData() {
     }
   });
 
+  // Nettoyer les données pour ehorses.fr (forcer mode création)
+  if (window.location.hostname.includes('ehorses')) {
+    cleanEhorsesDataForCreation(formData);
+  }
+
   console.log('Données extraites:', Object.keys(formData).length, 'champs');
   return formData;
+}
+
+// Fonction pour nettoyer les données ehorses.fr et forcer le mode création
+function cleanEhorsesDataForCreation(formData) {
+  console.log('🧹 Nettoyage des données ehorses.fr pour forcer la création...');
+  
+  // Liste des champs à supprimer pour forcer la création d'un nouveau cheval
+  const fieldsToRemove = [
+    'Horse.Id',              // ID du cheval existant
+    'EditMode',              // Mode édition
+    'Horse.Status',          // Statut du cheval existant  
+    'Horse.ReferenceId',     // Référence au cheval existant
+    'Ref',                   // URL de référence
+    'TodayNew',             // Indicateur nouveau du jour
+    'Horse.Package',        // Package actuel
+    'Extend'                // Extension d'annonce
+  ];
+  
+  let removedCount = 0;
+  fieldsToRemove.forEach(field => {
+    if (formData[field] !== undefined) {
+      delete formData[field];
+      removedCount++;
+      console.log(`❌ Supprimé: ${field}`);
+    }
+  });
+  
+  console.log(`✅ Nettoyage terminé: ${removedCount} champs supprimés pour forcer la création`);
 }

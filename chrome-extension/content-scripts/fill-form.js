@@ -44,6 +44,11 @@ function fillFormWithData(jsonData) {
   console.log('Début du remplissage du formulaire...');
 
   try {
+    // Pour ehorses.fr, gérer le token CSRF et les champs requis
+    if (window.location.hostname.includes('ehorses')) {
+      handleEhorsesSpecificFields(jsonData);
+    }
+
     // Mapper les champs pour éviter les conflits
     const mappedData = mapFieldNames(jsonData);
     console.log(
@@ -475,7 +480,7 @@ function fillColorBoxDisciplines(data) {
   // Nettoyer les résumés existants avant de les remplir
   clearDisciplineSummaries();
 
-  // Gérer la discipline principale
+  // Gérer la discipline principale (ajout du champ IsMainDiscipline)
   if (mainDiscipline) {
     setTimeout(() => {
       const mainButton = document.querySelector('#DMain.linkButtonFakeSelect');
@@ -486,44 +491,52 @@ function fillColorBoxDisciplines(data) {
           span.textContent = formatDisciplineName(mainDiscipline);
         }
         
-        // Créer un input hidden pour la soumission
+        // Créer les inputs hidden pour la soumission
         createHiddenInput(mainDiscipline, 'main');
+        createHiddenInput('IsMainDiscipline', 'True'); // Important pour ehorses.fr
         
         // Mettre à jour le résumé si présent
         updateDisciplineSummary('#summary_main', mainDiscipline);
       }
     }, 100);
+  } else {
+    // Si pas de discipline principale, mettre IsMainDiscipline à False
+    createHiddenInput('IsMainDiscipline', 'False');
   }
 
-  // Gérer les autres disciplines
-  if (otherDisciplines.length > 0) {
-    setTimeout(() => {
-      const otherButton = document.querySelector('#DOthers.linkButtonFakeSelect');
-      if (otherButton) {
-        const span = otherButton.querySelector('span');
-        if (span) {
-          span.textContent = `${otherDisciplines.length} autre(s) discipline(s) sélectionnée(s)`;
-        }
+  // Gérer les autres disciplines et aptitudes
+  setTimeout(() => {
+    const otherButton = document.querySelector('#DOthers.linkButtonFakeSelect');
+    if (otherButton && otherDisciplines.length > 0) {
+      const span = otherButton.querySelector('span');
+      if (span) {
+        span.textContent = `${otherDisciplines.length} autre(s) discipline(s) sélectionnée(s)`;
       }
-      
-      // Créer des inputs hidden pour chaque autre discipline (affichage visuel)
-      otherDisciplines.forEach(discipline => {
-        createHiddenInput(discipline, 'ON');
-        updateDisciplineSummary('#summary_misc', discipline);
-      });
-      
-      // Créer des inputs hidden pour les aptitudes (pas d'affichage visuel)
-      allFields.forEach(fieldName => {
-        if (data[fieldName] && Array.isArray(data[fieldName])) {
-          data[fieldName].forEach(aptitude => {
-            if (aptitude.checked && aptitude.value === 'ON' && !disciplineFields.includes(fieldName)) {
-              createHiddenInput(fieldName, 'ON');
-            }
-          });
-        }
-      });
-    }, 200);
-  }
+    }
+    
+    // Créer des inputs hidden pour chaque autre discipline
+    otherDisciplines.forEach(discipline => {
+      createHiddenInput(discipline, 'ON');
+      updateDisciplineSummary('#summary_misc', discipline);
+    });
+    
+    // Créer des inputs hidden pour les aptitudes (ne pas répéter les disciplines)
+    allFields.forEach(fieldName => {
+      if (data[fieldName] && Array.isArray(data[fieldName])) {
+        data[fieldName].forEach(aptitude => {
+          if (aptitude.checked && aptitude.value === 'ON' && !disciplineFields.includes(fieldName)) {
+            createHiddenInput(fieldName, 'ON');
+            console.log(`✅ Aptitude ajoutée: ${fieldName} = ON`);
+          }
+        });
+      }
+    });
+    
+    // Ajouter les autres champs de disciplines comme dans le payload manuel
+    if (otherDisciplines.length > 0) {
+      createHiddenInput('IsMainDiscipline', 'False'); // Pour les autres disciplines
+    }
+  }, 200);
   
   // Marquer la fin du traitement après un délai pour éviter les conflits
   setTimeout(() => {
@@ -532,14 +545,25 @@ function fillColorBoxDisciplines(data) {
 }
 
 function createHiddenInput(fieldName, value) {
-  let hiddenInput = document.querySelector(`input[name="${fieldName}"][value="${value}"]`);
+  // Pour certains champs comme IsMainDiscipline, on veut remplacer la valeur existante
+  const replaceFields = ['IsMainDiscipline', 'formStep', 'Horse.AdvertType'];
+  
+  let hiddenInput;
+  if (replaceFields.includes(fieldName)) {
+    hiddenInput = document.querySelector(`input[name="${fieldName}"]`);
+  } else {
+    hiddenInput = document.querySelector(`input[name="${fieldName}"][value="${value}"]`);
+  }
+  
   if (!hiddenInput) {
     hiddenInput = document.createElement('input');
     hiddenInput.type = 'hidden';
     hiddenInput.name = fieldName;
-    hiddenInput.value = value;
     document.body.appendChild(hiddenInput);
   }
+  
+  hiddenInput.value = value;
+  console.log(`✅ Input hidden créé/mis à jour: ${fieldName} = ${value}`);
 }
 
 function clearDisciplineSummaries() {
@@ -674,5 +698,18 @@ function fillEhorsesDescriptions(data) {
         }
       }
     }
+  }
+}
+
+// Nouvelle fonction pour gérer les spécificités d'ehorses.fr
+function handleEhorsesSpecificFields(data) {
+  console.log('🔧 Traitement des champs spécifiques ehorses.fr...');
+  
+  // Les champs de session sont maintenant nettoyés à la source (extract-form.js)
+  // Le formulaire utilise ses propres valeurs par défaut via AJAX
+  
+  // Gérer Horse.MonthOfBirth si nécessaire
+  if (data['Horse.YearOfBirth'] && !document.querySelector('select[name="Horse.MonthOfBirth"]')) {
+    console.log('✅ Horse.MonthOfBirth sera géré par le formulaire');
   }
 }
